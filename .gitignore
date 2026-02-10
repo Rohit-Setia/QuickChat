@@ -1,0 +1,25 @@
+# ===== GLOBAL =====
+.env
+.env.*
+.DS_Store
+Thumbs.db
+*.log
+
+.vscode/
+.idea/
+
+# ===== BACKEND =====
+backend/node_modules/
+backend/.env
+backend/dist/
+backend/__pycache__/
+backend/venv/
+backend/.venv/
+backend/*.pyc
+
+# ===== FRONTEND =====
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.env
+frontend/.vite/
