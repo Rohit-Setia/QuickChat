@@ -4,6 +4,7 @@ import { AuthContext } from "../context/AuthContext";
 import socket from "../socket";
 import Sidebar from "../Components/Sidebar";
 import ChatSection from "../Components/ChatSection";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const Chat = () => {
   const { user, token, logout } = useContext(AuthContext);
@@ -15,7 +16,8 @@ const Chat = () => {
   const [typingUser, setTypingUser] = useState(null);
   const selectedUserRef = useRef(null);
   const [unreadCounts, setUnreadCounts] = useState({});
-
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
   useEffect(() => {
     selectedUserRef.current = selectedUser;
   }, [selectedUser]);
@@ -66,7 +68,7 @@ const Chat = () => {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const res = await axios.get("http://localhost:5000/api/auth/users", {
+      const res = await axios.get(`${BACKEND_URL}/auth/users`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -75,7 +77,7 @@ const Chat = () => {
         const counts = {};
         for (let u of usersList) {
           const res = await axios.get(
-            `http://localhost:5000/api/messages/unread/${u._id}`,
+            `${BACKEND_URL}/messages/unread/${u._id}`,
             {
               headers: { Authorization: `Bearer ${token}` },
             },
@@ -92,7 +94,7 @@ const Chat = () => {
 
   const fetchMessages = async (userId) => {
     const res = await axios.get(
-      `http://localhost:5000/api/messages/${userId}`,
+      `${BACKEND_URL}/messages/${userId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -105,7 +107,7 @@ const Chat = () => {
   const sendMessage = async () => {
     if (!text) return;
     const res = await axios.post(
-      "http://localhost:5000/api/messages",
+      `${BACKEND_URL}/messages`,
       {
         receiverId: selectedUser._id,
         text,
@@ -127,7 +129,7 @@ const Chat = () => {
 
   const markAsSeen = async (userId) => {
     await axios.put(
-      `http://localhost:5000/api/messages/seen/${userId}`,
+      `${BACKEND_URL}/messages/seen/${userId}`,
       {},
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -152,11 +154,13 @@ const Chat = () => {
       logout={logout}
       setSelectedUser={setSelectedUser}
       fetchMessages={fetchMessages}
-      markAsSeen={markAsSeen} />
+      markAsSeen={markAsSeen}
+      isSidebarOpen={isSidebarOpen} 
+      setIsSidebarOpen={setIsSidebarOpen} />
 
       {/* Chat */}
      
-      <ChatSection user={user} messages={messages} selectedUser={selectedUser} typingUser={typingUser} text={text} setText={setText} sendMessage={sendMessage} isOnline={selectedUser && onlineUsers.includes(selectedUser._id)} />
+      <ChatSection user={user} messages={messages} selectedUser={selectedUser} typingUser={typingUser} text={text} setText={setText} sendMessage={sendMessage} isOnline={selectedUser && onlineUsers.includes(selectedUser._id)} setIsSidebarOpen={setIsSidebarOpen} />
       </div>
   );
 };

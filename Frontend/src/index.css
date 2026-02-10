@@ -1,5 +1,14 @@
 @import "tailwindcss";
+@theme {
+  --color-bg: #121417;
+  --color-sidebar: #202023;
+  --color-surface: #27272a;
+  --color-border: #3f3f46;
 
+  --color-primary: #7c3aed;
+  --color-primary-soft: #a78bfa;
+  --color-message: #702ebc;;
+}
 body {
   background-color: #262b33;
   color: #e5e7eb;
