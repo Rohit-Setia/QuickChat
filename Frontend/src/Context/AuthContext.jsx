@@ -1,36 +1,33 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState,useCallback } from "react";
+import { setupInterceptors } from "@/lib/axios";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    const storedToken = localStorage.getItem("token");
-
-    if (storedUser && storedToken) {
+    if (storedUser) {
       setUser(JSON.parse(storedUser));
-      setToken(storedToken);
     }
+    setupInterceptors(logout);
   }, []);
 
   const login = (userData, jwt) => {
     setUser(userData);
-    setToken(jwt);
     localStorage.setItem("user", JSON.stringify(userData));
     localStorage.setItem("token", jwt);
   };
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setUser(null);
-    setToken(null);
-    localStorage.clear();
-  };
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

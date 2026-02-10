@@ -1,4 +1,4 @@
-let onlineUsers = {};
+let onlineUserSockets = {};
 
 module.exports = (io) => {
   io.on("connection", (socket) => {
@@ -6,17 +6,19 @@ module.exports = (io) => {
 
     // user comes online
     socket.on("userConnected", (userId) => {
-      onlineUsers[userId] = socket.id;
-      io.emit("onlineUsers", Object.keys(onlineUsers));
+      onlineUserSockets[userId] = socket.id;
+      io.emit("onlineUserSocketsockets", Object.keys(onlineUserSockets));
     });
 
     // send message
-    socket.on("sendMessage", ({ senderId, receiverId, text }) => {
-      const receiverSocket = onlineUsers[receiverId];
+    socket.on("sendMessage", ({ senderId, senderUsername, receiverId, text }) => {
+      const receiverSocket = onlineUserSockets[receiverId];
 
       if (receiverSocket) {
         io.to(receiverSocket).emit("receiveMessage", {
           senderId,
+          senderUsername,
+          receiverId,
           text,
         });
         socket.emit("messageSent");
@@ -25,7 +27,7 @@ module.exports = (io) => {
 
     // typing indicator
     socket.on("typing", ({ senderId, receiverId }) => {
-      const receiverSocket = onlineUsers[receiverId];
+      const receiverSocket = onlineUserSockets[receiverId];
       if (receiverSocket) {
         io.to(receiverSocket).emit("typing", senderId);
       }
@@ -33,12 +35,12 @@ module.exports = (io) => {
 
     // disconnect
     socket.on("disconnect", () => {
-      for (let userId in onlineUsers) {
-        if (onlineUsers[userId] === socket.id) {
-          delete onlineUsers[userId];
+      for (let userId in onlineUserSockets) {
+        if (onlineUserSockets[userId] === socket.id) {
+          delete onlineUserSockets[userId];
         }
       }
-      io.emit("onlineUsers", Object.keys(onlineUsers));
+      io.emit("onlineUserSockets", Object.keys(onlineUserSockets));
       console.log("User disconnected:", socket.id);
     });
   });

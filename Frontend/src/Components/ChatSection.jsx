@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import socket from "../socket";
 import { Menu, Send } from "lucide-react";
 
@@ -12,6 +13,17 @@ export default function ChatSection({
   isOnline,
   setIsSidebarOpen,
 }) {
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+  const bottomRef = useRef(null);
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+  
   return (
     <main className="min-h-screen sm:min-h-0 flex-1 flex flex-col bg-[#18181B] relative">
       {/* Header */}
@@ -34,7 +46,7 @@ export default function ChatSection({
             </div>
           </div>
         ) : (
-          <span className="text-gray-400">Select a chat</span>
+          <span className="text-gray-300 justify-center flex items-center flex-1">Select a chat</span>
         )}
       </header>
 
@@ -75,6 +87,7 @@ export default function ChatSection({
             </div>
           );
         })}
+      <div ref={bottomRef} />
       </div>
 
       {/* Input */}
@@ -93,6 +106,7 @@ export default function ChatSection({
                   receiverId: selectedUser._id,
                 });
               }}
+              onKeyDown={handleKeyDown}
             />
             <button
               onClick={sendMessage}

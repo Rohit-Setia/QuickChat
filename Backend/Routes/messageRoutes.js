@@ -6,9 +6,11 @@ const {
   getMessages,
   markAsSeen,
   getUnreadCount,
+  getChatUsers,
 } = require("../controllers/messageController");
 
 router.post("/", authMiddleware, sendMessage);
+router.get("/chats", authMiddleware, getChatUsers);
 router.get("/:userId", authMiddleware, getMessages);
 router.put("/seen/:userId", authMiddleware, markAsSeen);
 router.get("/unread/:userId", authMiddleware, getUnreadCount);

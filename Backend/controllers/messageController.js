@@ -1,6 +1,7 @@
 const Message = require("../models/Message");
+const User = require("../models/User");
 
-// SEND MESSAGE
+
 exports.sendMessage = async (req, res) => {
   try {
     const { receiverId, text } = req.body;
@@ -18,7 +19,7 @@ exports.sendMessage = async (req, res) => {
   }
 };
 
-// GET CHAT BETWEEN TWO USERS
+
 exports.getMessages = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -36,7 +37,7 @@ exports.getMessages = async (req, res) => {
   }
 };
 
-// MARK MESSAGES AS SEEN
+
 exports.markAsSeen = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -52,7 +53,7 @@ exports.markAsSeen = async (req, res) => {
   }
 };
 
-// GET UNREAD COUNT
+
 exports.getUnreadCount = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -64,6 +65,30 @@ exports.getUnreadCount = async (req, res) => {
     });
 
     res.json({ count });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.getChatUsers = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const messages = await Message.find({
+      $or: [{ senderId: userId }, { receiverId: userId }],
+    }).select("senderId receiverId");
+    const userIds = new Set();
+    messages.forEach((msg) => {
+      if (msg.senderId.toString() !== userId) {
+        userIds.add(msg.senderId.toString());
+      }
+      if (msg.receiverId.toString() !== userId) {
+        userIds.add(msg.receiverId.toString());
+      }
+    });
+    const users = await User.find({
+      _id: { $in: Array.from(userIds) },
+    }).select("username email");
+    res.json(users);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

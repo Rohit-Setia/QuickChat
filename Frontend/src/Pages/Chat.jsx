@@ -1,13 +1,12 @@
 import { useContext, useEffect, useState, useRef } from "react";
-import axios from "axios";
+import api from "@/lib/axios";
 import { AuthContext } from "../context/AuthContext";
 import socket from "../socket";
 import Sidebar from "../Components/Sidebar";
 import ChatSection from "../Components/ChatSection";
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const Chat = () => {
-  const { user, token, logout } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -17,7 +16,7 @@ const Chat = () => {
   const selectedUserRef = useRef(null);
   const [unreadCounts, setUnreadCounts] = useState({});
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  
+
   useEffect(() => {
     selectedUserRef.current = selectedUser;
   }, [selectedUser]);
@@ -45,6 +44,20 @@ const Chat = () => {
           ...prev,
           [message.senderId]: (prev[message.senderId] || 0) + 1,
         }));
+        setUsers((prevUsers) => {
+          const exists = prevUsers.some(
+            (u) => u._id === message.senderId
+          );
+    
+          if (exists) return prevUsers;
+          return [
+            {
+              _id: message.senderId,
+              username: message.senderUsername, 
+            },
+            ...prevUsers,
+          ];
+        });
       }
     };
 
@@ -60,62 +73,46 @@ const Chat = () => {
     socket.on("typing", handleTyping);
 
     return () => {
+      socket.emit("userDisconnected", user.id);
+      socket.disconnect();
       socket.off("onlineUsers", handleOnlineUsers);
       socket.off("receiveMessage", handleReceiveMessage);
       socket.off("typing", handleTyping);
     };
   }, [user.id]);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const res = await axios.get(`${BACKEND_URL}/auth/users`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const fetchUnreadCounts = async (usersList) => {
-        const counts = {};
-        for (let u of usersList) {
-          const res = await axios.get(
-            `${BACKEND_URL}/messages/unread/${u._id}`,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            },
-          );
-          counts[u._id] = res.data.count;
-        }
-        setUnreadCounts(counts);
-      };
-      setUsers(res.data);
-      fetchUnreadCounts(res.data);
-    };
-    fetchUsers();
-  }, [token]);
+useEffect(() => {
+  const fetchChatUsers = async () => {
+    try {
+      const res = await api.get("/messages/chats");
+      const usersList = res.data;
+      setUsers(usersList);
+      const counts = {};
+      for (let u of usersList) {
+        const unreadRes = await api.get(`/messages/unread/${u._id}`);
+        counts[u._id] = unreadRes.data.count;
+      }
+      setUnreadCounts(counts);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchChatUsers();
+}, []);
+
 
   const fetchMessages = async (userId) => {
-    const res = await axios.get(
-      `${BACKEND_URL}/messages/${userId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
+    const res = await api.get(`/messages/${userId}`);
     setMessages(res.data);
   };
 
   const sendMessage = async () => {
-    if (!text) return;
-    const res = await axios.post(
-      `${BACKEND_URL}/messages`,
+    if (!text.trim()) return;
+    const res = await api.post(`/messages`,
       {
         receiverId: selectedUser._id,
         text,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       },
     );
     socket.emit("sendMessage", {
@@ -128,14 +125,7 @@ const Chat = () => {
   };
 
   const markAsSeen = async (userId) => {
-    await axios.put(
-      `${BACKEND_URL}/messages/seen/${userId}`,
-      {},
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      },
-    );
-
+    await api.put(`/messages/seen/${userId}`);
     setUnreadCounts((prev) => ({
       ...prev,
       [userId]: 0,
@@ -143,7 +133,7 @@ const Chat = () => {
   };
 
   return (
-    <div className="flex h-screen bg-bg">
+    <div className="flex h-screen bg-bg ">
       {/* Sidebar */}
       <Sidebar
       user={user}

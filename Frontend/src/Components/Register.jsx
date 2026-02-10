@@ -1,23 +1,35 @@
 import { useState } from "react";
-import axios from "axios";
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+import api from "@/lib/axios";
+import { useToast } from "@/components/ui/use-toast";
 
 const RegisterForm = ({ onSuccess }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { toast } = useToast();
 
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${BACKEND_URL}/auth/register`, {
+      await api.post(`/auth/register`, {
         username,
         email,
         password,
       });
+      toast({
+        title: "Success 🎉",
+        description: "Account created successfully",
+      });
       onSuccess(); 
+      
     } catch (err) {
-      alert(err.response?.data?.message || "Registration failed");
+      toast({
+        title: "Registration failed",
+        description:
+          err.response?.data?.message || "Something went wrong",
+        variant: "destructive",
+      });
+      
     }
   };
 
@@ -42,7 +54,7 @@ const RegisterForm = ({ onSuccess }) => {
         onChange={(e) => setPassword(e.target.value)}
         className="w-full bg-surface-soft border border-border rounded-xl py-3.5 px-4 text-sm focus:ring-2 focus:ring-primary/50 outline-none"
       />
-      <button className="w-full bg-primary hover:bg-primary/90 text-white py-3.5 rounded-xl font-medium">
+      <button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white py-3.5 rounded-xl font-medium">
         Create Account →
       </button>
     </form>

@@ -83,3 +83,17 @@ exports.getUsers = async (req, res) => {
   }
 };
 
+exports.searchUsers = async (req, res) => {
+  try {
+    const { username } = req.query;
+    if (!username) return res.json([]);
+    const users = await User.find({
+      username: { $regex: username, $options: "i" },
+      _id: { $ne: req.userId },
+    }).select("_id username");
+
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

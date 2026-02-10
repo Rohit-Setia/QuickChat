@@ -1,4 +1,5 @@
-
+import { useState, useEffect } from "react";
+import api from "@/lib/axios";
 export default function Sidebar({
   user,
   users,
@@ -12,6 +13,21 @@ export default function Sidebar({
   isSidebarOpen,
   setIsSidebarOpen,
 }) {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  
+  useEffect(() => {
+    const searchUsers = async () => {
+      if (!query.trim()) {
+        setResults([]);
+        return;
+      }
+      const res = await api.get(`/auth/search?username=${query}`);
+      setResults(res.data);
+    };
+    searchUsers();
+  }, [query]);
+  
     return (
       <aside className= {`fixed sm:relative inset-y-0 left-0 z-40 w-full sm:w-80 flex-shrink-0 flex flex-col border-r border-border bg-[#202023] transform transition-transform duration-300
         ${isSidebarOpen ? "translate-x-0" : "-translate-x-full sm:translate-x-0"}`}>
@@ -26,12 +42,40 @@ export default function Sidebar({
           </div>
           <button
             onClick={logout}
-            className="text-sm text-gray-400 hover:text-primary"
+            className="text-sm text-gray-400 hover:text-primary transition-colors"
           >
             Logout
           </button>
         </div>
   
+        <div className="p-3 border-b border-border">
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search or add user..."
+            className="w-full px-3 py-2 rounded-lg bg-zinc-800 text-sm outline-none focus:ring-2 focus:ring-primary/50"
+          />
+        </div>
+        {query && results.length > 0 && (
+  <div className="px-3 py-2 space-y-1">
+    {results.map((u) => (
+      <button
+        key={u._id}
+        onClick={() => {
+          setSelectedUser(u);
+          fetchMessages(u._id);
+          setQuery("");   
+          setResults([]);
+        }}
+        className="w-full text-left px-2 py-2 rounded hover:bg-zinc-700 text-sm"
+      >
+        {u.username}
+      </button>
+    ))}
+  </div>
+)}
+
+
         {/* User list */}
         <div className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-thin">
           {users.map((u) => {
