@@ -1,6 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useState,useEffect, useRef } from "react";
 import socket from "../socket";
-import { Menu, Send } from "lucide-react";
+import { Menu, Send, Smile, SmilePlus } from "lucide-react";
+import EmojiPicker from "emoji-picker-react";
 
 export default function ChatSection({
   messages,
@@ -13,13 +14,32 @@ export default function ChatSection({
   isOnline,
   setIsSidebarOpen,
 }) {
+  const [showEmoji, setShowEmoji] = useState(false);
+  const bottomRef = useRef(null);
+
+  const handleEmojiClick = (emojiData) => {
+    setText((prev) => prev + emojiData.emoji);
+  };
+  
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
   };
-  const bottomRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setShowEmoji(false);
+    };
+    if (showEmoji) {
+      document.addEventListener("click", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [showEmoji]);
+  
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -92,8 +112,13 @@ export default function ChatSection({
 
       {/* Input */}
       {selectedUser && (
-        <div className="p-3 sm:p-6 pt-2 bg-[#18181B]">
+        <div className="p-3 sm:p-6 pt-2 bg-[#18181B] relative">
           <div className="flex items-end gap-2 bg-[#27272A] border border-border rounded-xl p-2 focus-within:border-primary/50">
+          <button
+          onClick={(e) => {e.stopPropagation(); setShowEmoji((prev) => !prev);}}
+          className="h-10 px-3 rounded-lg text-yellow-400 hover:bg-yellow-400/10">
+          <Smile />
+          </button>
             <textarea
               className="flex-1 bg-transparent resize-none outline-none text-sm px-2 py-2 max-h-28 sm:max-h-32"
               placeholder="Type a message..."
@@ -115,6 +140,17 @@ export default function ChatSection({
               <Send />
             </button>
           </div>
+          {showEmoji && (
+              <div className="absolute bottom-20 left-4 z-50">
+                <EmojiPicker
+                  onEmojiClick={(emojiData) => {
+                    handleEmojiClick(emojiData);
+                    setShowEmoji(false);
+                  }}
+                  theme="dark"
+                />
+              </div>
+            )}
         </div>
       )}
     </main>

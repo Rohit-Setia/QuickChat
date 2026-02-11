@@ -16,7 +16,27 @@ const Chat = () => {
   const selectedUserRef = useRef(null);
   const [unreadCounts, setUnreadCounts] = useState({});
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
 
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.changedTouches[0].screenX;
+  };
+  
+  const handleTouchMove = (e) => {
+    touchEndX.current = e.changedTouches[0].screenX;
+  };
+  
+  const handleTouchEnd = () => {
+    const distance = touchEndX.current - touchStartX.current;
+    if (distance > 75) {
+      setIsSidebarOpen(true);
+    }
+    if (distance < -75) {
+      setIsSidebarOpen(false);
+    }
+  };
+  
   useEffect(() => {
     selectedUserRef.current = selectedUser;
   }, [selectedUser]);
@@ -133,8 +153,8 @@ useEffect(() => {
   };
 
   return (
-    <div className="flex h-screen bg-bg ">
-      {/* Sidebar */}
+    <div className="flex h-screen bg-bg " onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
+
       <Sidebar
       user={user}
       users={users}
@@ -148,8 +168,7 @@ useEffect(() => {
       isSidebarOpen={isSidebarOpen} 
       setIsSidebarOpen={setIsSidebarOpen} />
 
-      {/* Chat */}
-     
+
       <ChatSection user={user} messages={messages} selectedUser={selectedUser} typingUser={typingUser} text={text} setText={setText} sendMessage={sendMessage} isOnline={selectedUser && onlineUsers.includes(selectedUser._id)} setIsSidebarOpen={setIsSidebarOpen} />
       </div>
   );
