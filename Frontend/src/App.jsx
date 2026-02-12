@@ -3,7 +3,7 @@ import { useContext } from "react";
 import { AuthContext } from "./context/AuthContext";
 import Chat from "./pages/Chat";
 import CredentialPage from "./pages/CredentialPage";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/Components/ui/toaster";
 
 function App() {
   const { user } = useContext(AuthContext);

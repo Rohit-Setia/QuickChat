@@ -9,17 +9,17 @@ Thumbs.db
 .idea/
 
 # ===== BACKEND =====
-backend/node_modules/
-backend/.env
-backend/dist/
-backend/__pycache__/
-backend/venv/
-backend/.venv/
-backend/*.pyc
+Backend/node_modules/
+Backend/.env
+Backend/dist/
+Backend/__pycache__/
+Backend/venv/
+Backend/.venv/
+Backend/*.pyc
 
 # ===== FRONTEND =====
-frontend/node_modules/
-frontend/dist/
-frontend/build/
-frontend/.env
-frontend/.vite/
+Frontend/node_modules/
+Frontend/dist/
+Frontend/build/
+Frontend/.env
+Frontend/.vite/

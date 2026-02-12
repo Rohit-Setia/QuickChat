@@ -1,6 +1,6 @@
 import { useState } from "react";
 import api from "@/lib/axios";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/Components/ui/use-toast";
 
 const RegisterForm = ({ onSuccess }) => {
   const [username, setUsername] = useState("");

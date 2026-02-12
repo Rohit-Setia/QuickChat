@@ -1,6 +1,6 @@
 import { useState,useEffect, useRef } from "react";
 import socket from "../socket";
-import { Menu, Send, Smile, SmilePlus } from "lucide-react";
+import { Menu, Send, Smile} from "lucide-react";
 import EmojiPicker from "emoji-picker-react";
 
 export default function ChatSection({
