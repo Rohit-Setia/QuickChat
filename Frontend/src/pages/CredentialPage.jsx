@@ -1,5 +1,4 @@
 import { useState} from "react";
-import { MessageCircle } from 'lucide-react'
 import LoginForm from "../Components/Login";
 import RegisterForm from "../Components/Register";
 
@@ -15,7 +14,7 @@ const CredentialPage = () => {
         <div className="flex flex-col items-center mb-8">
           <div className="w-32 h-32 bg-surface-soft rounded-2xl flex items-center justify-center mb-4 ring-1 ring-white/5">
             <span className="text-3xl text-primary">
-            <img src="/public/quickchat.png" alt="QuickChat Logo" className="w-32 h-32" />
+            <img src="/quickchat.png" alt="QuickChat Logo" className="w-32 h-32" />
           </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold">QuickChat</h1>
