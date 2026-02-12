@@ -13,9 +13,9 @@ const CredentialPage = () => {
 
       <div className="w-full max-w-sm sm:max-w-md px-4 sm:px-6 md:px-0 z-10">
         <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 bg-surface-soft rounded-2xl flex items-center justify-center mb-4 ring-1 ring-white/5">
+          <div className="w-32 h-32 bg-surface-soft rounded-2xl flex items-center justify-center mb-4 ring-1 ring-white/5">
             <span className="text-3xl text-primary">
-            <MessageCircle />
+            <img src="/public/quickchat.png" alt="QuickChat Logo" className="w-32 h-32" />
           </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold">QuickChat</h1>
