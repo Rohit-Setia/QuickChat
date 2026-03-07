@@ -13,6 +13,8 @@ export default function ChatSection({
   user,
   isOnline,
   setIsSidebarOpen,
+  hasMore,
+  onLoadMore
 }) {
   const [showEmoji, setShowEmoji] = useState(false);
   const bottomRef = useRef(null);
@@ -72,6 +74,16 @@ export default function ChatSection({
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6 flex flex-col">
+        {hasMore && (
+          <div className="flex justify-center mb-4">
+            <button
+              onClick={onLoadMore}
+              className="text-xs text-primary hover:underline bg-[#27272A] px-3 py-1 rounded-full outline-none"
+            >
+              Load previous messages
+            </button>
+          </div>
+        )}
         {messages.map((msg) => {
           const isMe = msg.senderId === user.id;
 

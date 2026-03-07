@@ -33,7 +33,7 @@ exports.register = async (req, res) => {
     console.error("🔥 REGISTER ERROR STACK 🔥");
     console.error(err);
     res.status(500).json({
-      message: err.message,
+      message: "An internal Error has occurred",
       name: err.name,
     });
   }
@@ -68,27 +68,22 @@ exports.login = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: "An internal Error has occurred" });
   }
 };
 
-exports.getUsers = async (req, res) => {
-  try {
-    const users = await User.find({ _id: { $ne: req.userId } }).select(
-      "-password"
-    );
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
+// The getUsers endpoint has been removed to prevent out-of-memory errors on large datasets. All users should be discovered via searchUsers instead.
 
 exports.searchUsers = async (req, res) => {
   try {
     const { username } = req.query;
     if (!username) return res.json([]);
+
+    // Prevent Regex Denial of Service (ReDoS) by escaping special characters
+    const escapedUsername = username.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
     const users = await User.find({
-      username: { $regex: username, $options: "i" },
+      username: { $regex: escapedUsername, $options: "i" },
       _id: { $ne: req.userId },
     }).select("_id username");
 

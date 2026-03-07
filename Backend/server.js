@@ -31,7 +31,9 @@ const messageRoutes = require("./routes/messageRoutes");
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 
-require("./socket/socket")(io);
+const { initSocket } = require("./socket/socket");
+initSocket(io);
+app.set("io", io);
 
 mongoose.connect(process.env.MONGO_URI).then(() => {
   console.log("MongoDB connected");

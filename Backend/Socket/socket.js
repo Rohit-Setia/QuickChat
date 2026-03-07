@@ -1,29 +1,18 @@
-let onlineUserSockets = {};
+const onlineUserSockets = {};
 
-module.exports = (io) => {
+const getReceiverSocketId = (receiverId) => {
+  return onlineUserSockets[receiverId];
+};
+
+const initSocket = (io) => {
   io.on("connection", (socket) => {
     console.log("User connected:", socket.id);
 
     // user comes online
     socket.on("userConnected", (userId) => {
       onlineUserSockets[userId] = socket.id;
-      io.emit("onlineUserSocketsockets", Object.keys(onlineUserSockets));
+      io.emit("onlineUsers", Object.keys(onlineUserSockets));
     });
-
-    // send message
-    socket.on("sendMessage", ({ senderId, senderUsername, receiverId, text }) => {
-      const receiverSocket = onlineUserSockets[receiverId];
-
-      if (receiverSocket) {
-        io.to(receiverSocket).emit("receiveMessage", {
-          senderId,
-          senderUsername,
-          receiverId,
-          text,
-        });
-        socket.emit("messageSent");
-      }
-    }); 
 
     // typing indicator
     socket.on("typing", ({ senderId, receiverId }) => {
@@ -40,8 +29,10 @@ module.exports = (io) => {
           delete onlineUserSockets[userId];
         }
       }
-      io.emit("onlineUserSockets", Object.keys(onlineUserSockets));
+      io.emit("onlineUsers", Object.keys(onlineUserSockets));
       console.log("User disconnected:", socket.id);
     });
   });
 };
+
+module.exports = { initSocket, getReceiverSocketId };

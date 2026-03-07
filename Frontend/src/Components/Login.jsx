@@ -32,9 +32,11 @@ const LoginForm = () => {
   return (
     <form className="space-y-5" onSubmit={submitHandler}>
       <input
+        type="email"
         placeholder="Email address"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
+        autoComplete="email"
         className="w-full bg-surface-soft border border-border rounded-xl py-3.5 px-4 text-sm focus:ring-2 focus:ring-primary/50 outline-none"
       />
       <input
@@ -42,6 +44,7 @@ const LoginForm = () => {
         placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
+        autoComplete="current-password"
         className="w-full bg-surface-soft border border-border rounded-xl py-3.5 px-4 text-sm focus:ring-2 focus:ring-primary/50 outline-none"
       />
       <button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white py-3.5 rounded-xl font-medium">

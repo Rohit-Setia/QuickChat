@@ -10,6 +10,8 @@ const Chat = () => {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
   const [text, setText] = useState("");
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [typingUser, setTypingUser] = useState(null);
@@ -122,9 +124,15 @@ useEffect(() => {
 }, []);
 
 
-  const fetchMessages = async (userId) => {
-    const res = await api.get(`/messages/${userId}`);
-    setMessages(res.data);
+  const fetchMessages = async (userId, pageNum = 1) => {
+    const res = await api.get(`/messages/${userId}?page=${pageNum}&limit=50`);
+    if (pageNum === 1) {
+      setMessages(res.data.messages);
+    } else {
+      setMessages((prev) => [...res.data.messages, ...prev]);
+    }
+    setPage(res.data.page);
+    setHasMore(res.data.hasMore);
   };
 
   const sendMessage = async () => {
@@ -135,11 +143,6 @@ useEffect(() => {
         text,
       },
     );
-    socket.emit("sendMessage", {
-      senderId: user.id,
-      receiverId: selectedUser._id,
-      text,
-    });
     setMessages([...messages, res.data]);
     setText("");
   };
@@ -163,13 +166,29 @@ useEffect(() => {
       selectedUser={selectedUser}
       logout={logout}
       setSelectedUser={setSelectedUser}
-      fetchMessages={fetchMessages}
+      fetchMessages={(id) => {
+        setPage(1);
+        setHasMore(false);
+        fetchMessages(id, 1);
+      }}
       markAsSeen={markAsSeen}
       isSidebarOpen={isSidebarOpen} 
       setIsSidebarOpen={setIsSidebarOpen} />
 
 
-      <ChatSection user={user} messages={messages} selectedUser={selectedUser} typingUser={typingUser} text={text} setText={setText} sendMessage={sendMessage} isOnline={selectedUser && onlineUsers.includes(selectedUser._id)} setIsSidebarOpen={setIsSidebarOpen} />
+      <ChatSection 
+        user={user} 
+        messages={messages} 
+        selectedUser={selectedUser} 
+        typingUser={typingUser} 
+        text={text} 
+        setText={setText} 
+        sendMessage={sendMessage} 
+        isOnline={selectedUser && onlineUsers.includes(selectedUser._id)} 
+        setIsSidebarOpen={setIsSidebarOpen}
+        hasMore={hasMore}
+        onLoadMore={() => fetchMessages(selectedUser._id, page + 1)}
+      />
       </div>
   );
 };
